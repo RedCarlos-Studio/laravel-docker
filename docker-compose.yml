@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  php:
+    container_name: php_container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3302:443"
+    volumes:
+      - .:/var/www
+      - /var/www/vendor
+#      - /var/www/node_modules
+#      - /var/www/build
+    command: >
+      sh -c "chown -R www-data:www-data /var/www && chmod -R 755 /var/www/storage && php-fpm"
+    depends_on:
+      - mysql
+    networks:
+      - laravelnet
+
+  mysql:
+    container_name: mysql_container
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laravel_db
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - laravelnet
+
+volumes:
+  mysql_data:
+
+networks:
+  laravelnet:
+    name: laravelnet
+    driver: bridge
